@@ -28,11 +28,12 @@ namespace Loja.Mvc.Models
 
         public bool Ativo { get; set; }
 
+        [Required]
+        [Display(Name = "Categoria")]
         public int? CategoriaId { get; set; }
 
-        public List<SelectListItem> Categorias { get; set; }
-
-        [Required]
+        public List<SelectListItem> Categorias { get; set; } = new List<SelectListItem>();
+        
         [Display(Name = "Imagem do Produto")]
         public HttpPostedFileBase Imagem { get; set; }
     }

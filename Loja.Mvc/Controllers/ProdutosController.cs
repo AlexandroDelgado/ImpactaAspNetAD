@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Loja.Dominio;
+using Loja.Mvc.Helpers;
+using Loja.Mvc.Models;
+using Loja.Repositorios.SqlServer.EF;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,53 +12,64 @@ namespace Loja.Mvc.Controllers
 {
     public class ProdutosController : Controller
     {
+        private LojaDbContext _db = new LojaDbContext();
+
         // GET: Produtos
         public ActionResult Index()
         {
-            return View();
+            return View(Mapeamento.Mapear(_db.Produtos.ToList()));
         }
 
         // GET: Produtos/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return RedirectToAction("index");
+            }
+
+            return View(Mapeamento.Mapear(_db.Produtos.Find(id)));
         }
 
         // GET: Produtos/Create
         public ActionResult Create()
         {
-            return View();
+            return View(Mapeamento.Mapear(new Produto(), _db.Categorias.ToList()));
         }
 
         // POST: Produtos/Create
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public ActionResult Create(ProdutoViewModel viewModel)
         {
             try
             {
-                // TODO: Add insert logic here
+                var produto = Mapeamento.Mapear(viewModel, _db);
+                _db.Produtos.Add(produto);
+                _db.SaveChanges();
 
                 return RedirectToAction("Index");
             }
             catch
             {
-                return View();
+                return View(viewModel);
             }
         }
 
         // GET: Produtos/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            return View(Mapeamento.Mapear(_db.Produtos.Find(id), _db.Categorias.ToList()));
         }
 
         // POST: Produtos/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(ProdutoViewModel viewModel)
         {
             try
             {
-                // TODO: Add update logic here
+                var produto = _db.Produtos.Find(viewModel.Id);
+                Mapeamento.Mapear(viewModel, produto, _db);
+                _db.SaveChanges();
 
                 return RedirectToAction("Index");
             }
@@ -67,7 +82,7 @@ namespace Loja.Mvc.Controllers
         // GET: Produtos/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            return View(Mapeamento.Mapear(_db.Produtos.Find(id)));
         }
 
         // POST: Produtos/Delete/5
@@ -76,7 +91,9 @@ namespace Loja.Mvc.Controllers
         {
             try
             {
-                // TODO: Add delete logic here
+                var produto = _db.Produtos.Find(id);
+                _db.Produtos.Remove(produto);
+                _db.SaveChanges();
 
                 return RedirectToAction("Index");
             }
